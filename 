@@ -1,0 +1,29 @@
+[33mcommit e60bd29ec6cf961d9b4f681c0260a0f2c8d35909[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Emanuele Vesprini <emanuele.vesprini@studenti.unicam.it>
+Date:   Fri Oct 30 08:05:11 2026 +0100
+
+    vp: start iteration E1
+
+[33mcommit c41b34f9040828a5d227349d8d2149f9cba859e4[m
+Author: Emanuele Vesprini <emanuele.vesprini@studenti.unicam.it>
+Date:   Thu Oct 29 13:45:40 2026 +0100
+
+    feat: implement createhackathon usecase
+
+[33mcommit b6bca0e275172adaec3a4da0b7972983e4ccc666[m
+Author: Emanuele Vesprini <emanuele.vesprini@studenti.unicam.it>
+Date:   Wed Oct 28 17:44:35 2026 +0100
+
+    refactor: build first architecture structure
+
+[33mcommit e63b6fa2370f6222aa6dfb6e6ad45426ebe42066[m
+Author: Emanuele Vesprini <emanuele.vesprini@studenti.unicam.it>
+Date:   Sun Oct 25 18:15:17 2026 +0100
+
+    build: create gradle structure
+
+[33mcommit 515ab521094968ca336847ab299917c794c0b232[m
+Author: Emanuele Vesprini <emanuele.vesprini@studenti.unicam.it>
+Date:   Sun Oct 25 18:05:22 2026 +0100
+
+    docs: visual paradigm project
