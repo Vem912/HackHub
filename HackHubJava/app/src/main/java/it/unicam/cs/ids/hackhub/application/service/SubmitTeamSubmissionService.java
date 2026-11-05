@@ -11,6 +11,7 @@ import it.unicam.cs.ids.hackhub.application.port.in.SubmitTeamSubmissionUseCase;
 import it.unicam.cs.ids.hackhub.application.port.out.HackathonRepository;
 import it.unicam.cs.ids.hackhub.application.port.out.SubmissionRepository;
 import it.unicam.cs.ids.hackhub.application.port.out.TeamRepository;
+import it.unicam.cs.ids.hackhub.application.service.utils.SubmissionFileValidator;
 import it.unicam.cs.ids.hackhub.domain.entity.Submission;
 import it.unicam.cs.ids.hackhub.domain.enums.HackathonState;
 import it.unicam.cs.ids.hackhub.domain.valueobject.HackathonId;

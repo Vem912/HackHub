@@ -1,4 +1,4 @@
-package it.unicam.cs.ids.hackhub.application.service;
+package it.unicam.cs.ids.hackhub.application.service.utils;
 
 import it.unicam.cs.ids.hackhub.application.exception.InvalidSubmissionFileException;
 import it.unicam.cs.ids.hackhub.domain.valueobject.SubmissionFile;
