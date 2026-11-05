@@ -59,13 +59,12 @@ public class HackathonController {
     @PostMapping("/{hackathonId}/teams")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterTeamToHackathonResponse registerTeam(
-            @PathVariable UUID hackathonId,
             @Valid @RequestBody RegisterTeamToHackathonRequest request) {
         var result = registerTeamToHackathonUseCase.register(
                 new RegisterTeamToHackathonCommand(
                         UUID.fromString(request.userId()),
                         UUID.fromString(request.teamId()),
-                        hackathonId));
+                        UUID.fromString(request.hackathonId())));
         return new RegisterTeamToHackathonResponse(result.teamId(), result.hackathonId());
     }
 }

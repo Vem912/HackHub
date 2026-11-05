@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 /** HTTP payload for registering a team in a hackathon. */
 public record RegisterTeamToHackathonRequest(
         @NotBlank String userId,
-        @NotBlank String teamId
+        @NotBlank String teamId,
+        @NotBlank String hackathonId
 ) {
 }

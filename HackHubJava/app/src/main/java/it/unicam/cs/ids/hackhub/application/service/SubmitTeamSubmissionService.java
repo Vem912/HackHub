@@ -16,6 +16,7 @@ import it.unicam.cs.ids.hackhub.domain.enums.HackathonState;
 import it.unicam.cs.ids.hackhub.domain.valueobject.HackathonId;
 import it.unicam.cs.ids.hackhub.domain.valueobject.TeamId;
 import it.unicam.cs.ids.hackhub.domain.valueobject.UserId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -31,6 +32,7 @@ public class SubmitTeamSubmissionService implements SubmitTeamSubmissionUseCase 
     private final SubmissionFileValidator fileValidator;
     private final Clock clock;
 
+    @Autowired
     public SubmitTeamSubmissionService(
             TeamRepository teamRepository,
             HackathonRepository hackathonRepository,

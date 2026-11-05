@@ -9,12 +9,10 @@ import it.unicam.cs.ids.hackhub.presentation.dto.response.SubmitTeamSubmissionRe
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -35,15 +33,13 @@ public class SubmissionController {
     @PutMapping(consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.OK)
     public SubmitTeamSubmissionResponse submit(
-            @PathVariable UUID hackathonId,
-            @PathVariable UUID teamId,
             @Valid @ModelAttribute SubmitTeamSubmissionRequest request
     ) {
         try {
             var result = submitUseCase.submit(new SubmitTeamSubmissionCommand(
                     UUID.fromString(request.userId()),
-                    teamId,
-                    hackathonId,
+                    UUID.fromString(request.teamId()),
+                    UUID.fromString(request.hackathonId()),
                     request.title(),
                     request.description(),
                     new SubmissionFile(

@@ -1,117 +1,160 @@
 package it.unicam.cs.ids.hackhub.application.service;
 
 import it.unicam.cs.ids.hackhub.application.dto.command.SubmitTeamSubmissionCommand;
+import it.unicam.cs.ids.hackhub.application.exception.HackathonNotFoundException;
 import it.unicam.cs.ids.hackhub.application.exception.HackathonNotInProgressException;
 import it.unicam.cs.ids.hackhub.application.exception.InvalidSubmissionFileException;
 import it.unicam.cs.ids.hackhub.application.exception.SubmissionDeadlinePassedException;
 import it.unicam.cs.ids.hackhub.application.exception.TeamMemberNotAuthorizedException;
+import it.unicam.cs.ids.hackhub.application.exception.TeamNotFoundException;
 import it.unicam.cs.ids.hackhub.domain.entity.Hackathon;
 import it.unicam.cs.ids.hackhub.domain.entity.Team;
 import it.unicam.cs.ids.hackhub.domain.enums.HackathonState;
 import it.unicam.cs.ids.hackhub.domain.valueobject.PaymentDetails;
-import it.unicam.cs.ids.hackhub.domain.valueobject.StaffStructure;
 import it.unicam.cs.ids.hackhub.domain.valueobject.SubmissionFile;
-import it.unicam.cs.ids.hackhub.domain.valueobject.TimeConstraints;
 import it.unicam.cs.ids.hackhub.domain.valueobject.UserId;
 import it.unicam.cs.ids.hackhub.infrastructure.persistence.InMemoryHackathonRepository;
 import it.unicam.cs.ids.hackhub.infrastructure.persistence.InMemorySubmissionRepository;
 import it.unicam.cs.ids.hackhub.infrastructure.persistence.InMemoryTeamRepository;
+import it.unicam.cs.ids.hackhub.support.TestDataFactory;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class SubmitTeamSubmissionServiceTest {
     @Test
     public void createsAndThenReplacesSubmission() {
-        var fixture = new Fixture();
-        var first = fixture.service.submit(fixture.command("first.zip"));
-        var second = fixture.service.submit(fixture.command("second.zip"));
+        var member = TestDataFactory.userId();
+        var team = TestDataFactory.team(member);
+        var hackathon = TestDataFactory.hackathon(3, HackathonState.IN_PROGRESS, List.of());
+        var submissions = new InMemorySubmissionRepository();
+        var service = service(team, hackathon, submissions, TestDataFactory.HACKATHON_START.plusHours(1));
 
-        assertEquals(false, first.updated());
-        assertEquals(true, second.updated());
-        assertEquals("second.zip", fixture.submissions
-                .findByHackathonAndTeam(fixture.hackathon.id(), fixture.team.id()).orElseThrow()
-                .file().fileName());
+        var first = service.submit(command(member, team, hackathon, "first.zip"));
+        var second = service.submit(command(member, team, hackathon, "second.zip"));
+
+        assertTrue(second.updated());
+        assertTrue(!first.updated());
+        assertTrue(submissions.findByHackathonAndTeam(hackathon.id(), team.id()).orElseThrow()
+                .file().fileName().equals("second.zip"));
     }
 
     @Test
     public void rejectsNonMember() {
-        var fixture = new Fixture();
-        assertThrows(TeamMemberNotAuthorizedException.class, () -> fixture.service.submit(
-                new SubmitTeamSubmissionCommand(UUID.randomUUID(), fixture.team.id().value(),
-                        fixture.hackathon.id().value(), "Title", "Description", fixture.file("submission.zip"))));
+        var member = TestDataFactory.userId();
+        var team = TestDataFactory.team(member);
+        var hackathon = TestDataFactory.hackathon(3, HackathonState.IN_PROGRESS, List.of());
+
+        assertThrows(TeamMemberNotAuthorizedException.class,
+                () -> service(team, hackathon, new InMemorySubmissionRepository(),
+                        TestDataFactory.HACKATHON_START.plusHours(1))
+                        .submit(command(TestDataFactory.userId(), team, hackathon, "submission.zip")));
     }
 
     @Test
-    public void rejectsInactiveHackathonAndExpiredDeadline() {
-        var fixture = new Fixture();
-        fixture.hackathon.changeState(HackathonState.REGISTRATION_OPEN);
-        assertThrows(HackathonNotInProgressException.class, () -> fixture.service.submit(fixture.command("submission.zip")));
+    public void rejectsInactiveHackathon() {
+        var member = TestDataFactory.userId();
+        var team = TestDataFactory.team(member);
+        var hackathon = TestDataFactory.hackathon(3, HackathonState.REGISTRATION_OPEN, List.of());
 
-        fixture.hackathon.changeState(HackathonState.IN_PROGRESS);
-        fixture.service = new SubmitTeamSubmissionService(fixture.teams, fixture.hackathons, fixture.submissions,
-                new SubmissionFileValidator(), Clock.fixed(Instant.parse("2026-05-04T00:00:00Z"), ZoneOffset.UTC));
-        assertThrows(SubmissionDeadlinePassedException.class, () -> fixture.service.submit(fixture.command("submission.zip")));
+        assertThrows(HackathonNotInProgressException.class,
+                () -> service(team, hackathon, new InMemorySubmissionRepository(),
+                        TestDataFactory.HACKATHON_START.plusHours(1))
+                        .submit(command(member, team, hackathon, "submission.zip")));
+    }
+
+    @Test
+    public void rejectsExpiredDeadline() {
+        var member = TestDataFactory.userId();
+        var team = TestDataFactory.team(member);
+        var hackathon = TestDataFactory.hackathon(3, HackathonState.IN_PROGRESS, List.of());
+
+        assertThrows(SubmissionDeadlinePassedException.class,
+                () -> service(team, hackathon, new InMemorySubmissionRepository(),
+                        TestDataFactory.HACKATHON_START.plusDays(1).plusMinutes(1))
+                        .submit(command(member, team, hackathon, "submission.zip")));
     }
 
     @Test
     public void rejectsNonZip() {
-        var fixture = new Fixture();
-        assertThrows(InvalidSubmissionFileException.class, () -> fixture.service.submit(
-                new SubmitTeamSubmissionCommand(fixture.member.value(), fixture.team.id().value(),
-                        fixture.hackathon.id().value(), "Title", "Description",
-                        new SubmissionFile("submission.txt", new byte[]{1, 2}))));
+        var member = TestDataFactory.userId();
+        var team = TestDataFactory.team(member);
+        var hackathon = TestDataFactory.hackathon(3, HackathonState.IN_PROGRESS, List.of());
+        var nonZip = new SubmissionFile("submission.txt", new byte[]{1, 2});
+
+        assertThrows(InvalidSubmissionFileException.class,
+                () -> service(team, hackathon, new InMemorySubmissionRepository(),
+                        TestDataFactory.HACKATHON_START.plusHours(1))
+                        .submit(command(member, team, hackathon, nonZip)));
     }
 
-    private static class Fixture {
-        private final InMemoryTeamRepository teams = new InMemoryTeamRepository();
-        private final InMemoryHackathonRepository hackathons = new InMemoryHackathonRepository();
-        private final InMemorySubmissionRepository submissions = new InMemorySubmissionRepository();
-        private final UserId member = new UserId(UUID.randomUUID());
-        private final Team team = Team.create("Team", member, new PaymentDetails("Payment"));
-        private final Hackathon hackathon;
-        private SubmitTeamSubmissionService service;
+    @Test
+    public void rejectsMissingTeam() {
+        var member = TestDataFactory.userId();
+        var team = TestDataFactory.team(member);
+        var hackathon = TestDataFactory.hackathon(3, HackathonState.IN_PROGRESS, List.of());
 
-        private Fixture() {
-            var start = LocalDateTime.of(2026, 5, 2, 9, 0);
-            hackathon = Hackathon.create("Hackathon", "Location", java.math.BigDecimal.ZERO, 3,
-                    new StaffStructure(java.util.List.of()),
-                    new TimeConstraints(start.minusDays(1), start, start.plusDays(1)));
-            hackathon.changeState(HackathonState.IN_PROGRESS);
+        assertThrows(TeamNotFoundException.class,
+                () -> service(null, hackathon, new InMemorySubmissionRepository(),
+                        TestDataFactory.HACKATHON_START.plusHours(1))
+                        .submit(command(member, team, hackathon, "submission.zip")));
+    }
+
+    @Test
+    public void rejectsMissingHackathon() {
+        var member = TestDataFactory.userId();
+        var team = TestDataFactory.team(member);
+        var hackathon = TestDataFactory.hackathon(3, HackathonState.IN_PROGRESS, List.of());
+
+        assertThrows(HackathonNotFoundException.class,
+                () -> service(team, null, new InMemorySubmissionRepository(),
+                        TestDataFactory.HACKATHON_START.plusHours(1))
+                        .submit(command(member, team, hackathon, "submission.zip")));
+    }
+
+    private static SubmitTeamSubmissionCommand command(
+            UserId userId,
+            Team team,
+            Hackathon hackathon,
+            String fileName) {
+        return command(userId, team, hackathon, TestDataFactory.zipFile(fileName));
+    }
+
+    private static SubmitTeamSubmissionCommand command(
+            UserId userId,
+            Team team,
+            Hackathon hackathon,
+            SubmissionFile file) {
+        return new SubmitTeamSubmissionCommand(
+                userId.value(),
+                team.id().value(),
+                hackathon.id().value(),
+                "Title",
+                "Description",
+                file);
+    }
+
+    private static SubmitTeamSubmissionService service(
+            Team team,
+            Hackathon hackathon,
+            InMemorySubmissionRepository submissions,
+            java.time.LocalDateTime now) {
+        var teams = new InMemoryTeamRepository();
+        var hackathons = new InMemoryHackathonRepository();
+        if (team != null) {
             teams.saveIfMembersAvailable(team);
+        }
+        if (hackathon != null) {
             hackathons.save(hackathon);
-            service = new SubmitTeamSubmissionService(teams, hackathons, submissions,
-                    new SubmissionFileValidator(), Clock.fixed(
-                            start.plusHours(1).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
         }
-
-        private SubmitTeamSubmissionCommand command(String fileName) {
-            return new SubmitTeamSubmissionCommand(member.value(), team.id().value(), hackathon.id().value(),
-                    "Title", "Description", file(fileName));
-        }
-
-        private SubmissionFile file(String fileName) {
-            try {
-                var output = new ByteArrayOutputStream();
-                try (var zip = new ZipOutputStream(output)) {
-                    zip.putNextEntry(new ZipEntry("readme.txt"));
-                    zip.write("submission".getBytes());
-                    zip.closeEntry();
-                }
-                return new SubmissionFile(fileName, output.toByteArray());
-            } catch (java.io.IOException exception) {
-                throw new AssertionError(exception);
-            }
-        }
+        return new SubmitTeamSubmissionService(
+                teams,
+                hackathons,
+                submissions,
+                new SubmissionFileValidator(),
+                TestDataFactory.fixedClock(now));
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 /** Multipart HTTP payload for submitting or replacing a team's submission. */
 public record SubmitTeamSubmissionRequest(
+        @NotBlank String hackathonId,
+        @NotBlank String teamId,
         @NotBlank String userId,
         @NotBlank String title,
         @NotBlank String description,
