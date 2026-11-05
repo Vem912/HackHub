@@ -3,6 +3,7 @@ package it.unicam.cs.ids.hackhub.presentation.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public record CreateHackathonRequest(
         @NotBlank String name,
         @NotBlank String location,
         @NotNull @PositiveOrZero BigDecimal prize,
+        @Positive int maxTeamMembers,
         @NotBlank String organizerId,
         @NotBlank String judgeId,
         @NotNull List<@NotBlank String> mentorIds,

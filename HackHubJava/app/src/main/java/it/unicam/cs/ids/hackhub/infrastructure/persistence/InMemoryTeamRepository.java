@@ -2,11 +2,13 @@ package it.unicam.cs.ids.hackhub.infrastructure.persistence;
 
 import it.unicam.cs.ids.hackhub.application.port.out.TeamRepository;
 import it.unicam.cs.ids.hackhub.domain.entity.Team;
+import it.unicam.cs.ids.hackhub.domain.valueobject.TeamId;
 import it.unicam.cs.ids.hackhub.domain.valueobject.UserId;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /** In-memory repository adapter; stored data is lost when the application stops. */
@@ -25,5 +27,10 @@ public class InMemoryTeamRepository implements TeamRepository {
         teams.put(teamId, team);
         team.members().forEach(memberId -> teamsByMember.put(memberId, teamId));
         return true;
+    }
+
+    @Override
+    public synchronized Optional<Team> findById(TeamId teamId) {
+        return Optional.ofNullable(teams.get(teamId.value()));
     }
 }

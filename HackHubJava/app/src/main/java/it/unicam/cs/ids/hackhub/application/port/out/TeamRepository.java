@@ -1,6 +1,9 @@
 package it.unicam.cs.ids.hackhub.application.port.out;
 
 import it.unicam.cs.ids.hackhub.domain.entity.Team;
+import it.unicam.cs.ids.hackhub.domain.valueobject.TeamId;
+
+import java.util.Optional;
 
 /** Outbound persistence port used by the application to store teams. */
 public interface TeamRepository {
@@ -10,4 +13,6 @@ public interface TeamRepository {
      * @return true when stored, false when at least one member already belongs to a team
      */
     boolean saveIfMembersAvailable(Team team);
+
+    Optional<Team> findById(TeamId teamId);
 }

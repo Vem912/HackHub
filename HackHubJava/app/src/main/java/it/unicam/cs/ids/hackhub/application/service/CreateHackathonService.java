@@ -37,6 +37,7 @@ public class CreateHackathonService implements CreateHackathonUseCase {
                 command.name(),
                 command.location(),
                 command.prize(),
+                command.maxTeamMembers(),
                 new StaffStructure(List.copyOf(staff)),
                 new TimeConstraints(
                         command.teamRegistrationDeadline(),

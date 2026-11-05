@@ -20,12 +20,14 @@ public class Hackathon {
     private final String name;
     private final String location;
     private final BigDecimal prize;
+    private final int maxTeamMembers;
 
     private Hackathon(
             HackathonId id,
             String name,
             String location,
             BigDecimal prize,
+            int maxTeamMembers,
             StaffStructure staffStructure,
             TimeConstraints timeConstraints
     ) {
@@ -36,6 +38,10 @@ public class Hackathon {
         if (prize.signum() < 0) {
             throw new IllegalArgumentException("prize cannot be negative");
         }
+        if (maxTeamMembers <= 0) {
+            throw new IllegalArgumentException("maxTeamMembers must be positive");
+        }
+        this.maxTeamMembers = maxTeamMembers;
         this.staffStructure = Objects.requireNonNull(staffStructure, "staffStructure cannot be null");
         this.timeConstraints = Objects.requireNonNull(timeConstraints, "timeConstraints cannot be null");
         this.state = HackathonState.REGISTRATION_OPEN;
@@ -51,10 +57,11 @@ public class Hackathon {
             String name,
             String location,
             BigDecimal prize,
+            int maxTeamMembers,
             StaffStructure staffStructure,
             TimeConstraints timeConstraints
     ) {
-        return new Hackathon(HackathonId.generate(), name, location, prize, staffStructure, timeConstraints);
+        return new Hackathon(HackathonId.generate(), name, location, prize, maxTeamMembers, staffStructure, timeConstraints);
     }
 
     private static String requireText(String value, String fieldName) {
@@ -83,6 +90,10 @@ public class Hackathon {
     /** Returns the prize amount. */
     public BigDecimal prize() {
         return prize;
+    }
+
+    public int maxTeamMembers() {
+        return maxTeamMembers;
     }
 
     /** Returns the staff assignments associated with this hackathon. */

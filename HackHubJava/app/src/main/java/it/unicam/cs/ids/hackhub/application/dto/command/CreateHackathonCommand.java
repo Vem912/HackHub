@@ -10,6 +10,7 @@ public record CreateHackathonCommand(
         String name,
         String location,
         BigDecimal prize,
+        int maxTeamMembers,
         UUID organizerId,
         UUID judgeId,
         List<UUID> mentorIds,

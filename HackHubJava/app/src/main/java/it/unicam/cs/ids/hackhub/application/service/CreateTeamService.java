@@ -29,10 +29,10 @@ public class CreateTeamService implements CreateTeamUseCase {
                 command.name(),
                 creatorId,
                 new PaymentDetails(command.paymentDetails()));
-
         if (!teamRepository.saveIfMembersAvailable(team)) {
             throw new UserAlreadyInTeamException();
         }
+
 
         return new CreateTeamResult(team.id().value(), team.name());
     }
