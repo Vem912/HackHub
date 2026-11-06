@@ -5,6 +5,8 @@ import it.unicam.cs.ids.hackhub.application.exception.HackathonNotFoundException
 import it.unicam.cs.ids.hackhub.application.exception.TeamNotFoundException;
 import it.unicam.cs.ids.hackhub.application.exception.TeamMemberNotAuthorizedException;
 import it.unicam.cs.ids.hackhub.application.exception.TeamRegistrationException;
+import it.unicam.cs.ids.hackhub.application.exception.SubmissionNotFoundException;
+import it.unicam.cs.ids.hackhub.application.exception.JudgeNotAuthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,9 +34,21 @@ public class ApiExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
     }
 
+    @ExceptionHandler(JudgeNotAuthorizedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ProblemDetail handleUnauthorizedJudge(JudgeNotAuthorizedException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
     @ExceptionHandler({HackathonNotFoundException.class, TeamNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail handleRegistrationTargetNotFound(TeamRegistrationException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(SubmissionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ProblemDetail handleSubmissionNotFound(SubmissionNotFoundException exception) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 

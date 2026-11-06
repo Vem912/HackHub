@@ -7,6 +7,7 @@ import it.unicam.cs.ids.hackhub.domain.valueobject.TeamId;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -19,6 +20,20 @@ public class InMemorySubmissionRepository implements SubmissionRepository {
     @Override
     public Optional<Submission> findByHackathonAndTeam(HackathonId hackathonId, TeamId teamId) {
         return Optional.ofNullable(submissions.get(key(hackathonId, teamId)));
+    }
+
+    @Override
+    public Optional<Submission> findById(UUID submissionId) {
+        return submissions.values().stream()
+                .filter(submission -> submission.id().equals(submissionId))
+                .findFirst();
+    }
+
+    @Override
+    public List<Submission> findByHackathon(HackathonId hackathonId) {
+        return submissions.values().stream()
+                .filter(submission -> submission.hackathonId().equals(hackathonId))
+                .toList();
     }
 
     @Override
