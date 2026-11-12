@@ -1,11 +1,11 @@
 package it.unicam.cs.ids.hackhub.presentation.dto.response;
 
-public record EvaluateSubmissionResponse(
+/** Common HTTP response for a submission evaluation. */
+public record EvaluationResponse(
         String evaluationId,
         String submissionId,
         String judgeId,
-        int score,
-        String judgment,
-        long evaluatedSubmissionsCount
+        double score,
+        String judgment
 ) {
 }

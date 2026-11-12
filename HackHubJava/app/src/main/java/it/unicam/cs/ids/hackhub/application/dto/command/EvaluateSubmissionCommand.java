@@ -6,7 +6,7 @@ import java.util.UUID;
 public record EvaluateSubmissionCommand(
         UUID submissionId,
         UUID judgeId,
-        int score,
+        double score,
         String judgment
 ) {
 }

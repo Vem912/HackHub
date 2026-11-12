@@ -2,13 +2,12 @@ package it.unicam.cs.ids.hackhub.application.dto.result;
 
 import java.util.UUID;
 
-/** Result of a recorded evaluation. */
-public record EvaluateSubmissionResult(
+/** Common application result for a submission evaluation. */
+public record EvaluationResult(
         UUID evaluationId,
         UUID submissionId,
         UUID judgeId,
-        int score,
-        String judgment,
-        long evaluatedSubmissionsCount
+        double score,
+        String judgment
 ) {
 }

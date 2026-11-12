@@ -10,7 +10,7 @@ public record Evaluation(
         UUID id,
         UUID submissionId,
         UserId judgeId,
-        int score,
+        double score,
         String judgment
 ) {
     public Evaluation {
@@ -23,7 +23,7 @@ public record Evaluation(
         judgment = requireText(judgment);
     }
 
-    public static Evaluation create(UUID submissionId, UserId judgeId, int score, String judgment) {
+    public static Evaluation create(UUID submissionId, UserId judgeId, double score, String judgment) {
         return new Evaluation(UUID.randomUUID(), submissionId, judgeId, score, judgment);
     }
 

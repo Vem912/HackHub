@@ -1,6 +1,7 @@
 package it.unicam.cs.ids.hackhub.application.service;
 
 import it.unicam.cs.ids.hackhub.application.dto.command.EvaluateSubmissionCommand;
+import it.unicam.cs.ids.hackhub.application.exception.EvaluationAlreadyCompletedException;
 import it.unicam.cs.ids.hackhub.application.exception.JudgeNotAuthorizedException;
 import it.unicam.cs.ids.hackhub.application.port.out.EvaluationRepository;
 import it.unicam.cs.ids.hackhub.domain.entity.Submission;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertThrows;
 
 public class EvaluateSubmissionServiceTest {
     @Test
-    public void recordsEvaluationAndUpdatesEvaluatedCounter() {
+    public void recordsEvaluation() {
         var judge = TestDataFactory.userId();
         var teamMember = TestDataFactory.userId();
         var hackathon = TestDataFactory.hackathon(
@@ -32,13 +33,17 @@ public class EvaluateSubmissionServiceTest {
                 TestDataFactory.zipFile("submission.zip"), TestDataFactory.HACKATHON_START);
         var submissions = new InMemorySubmissionRepository();
         submissions.save(submission);
-        var service = service(hackathon, submissions, new InMemoryEvaluationRepository());
+        var evaluations = new InMemoryEvaluationRepository();
+        var service = service(hackathon, submissions, evaluations);
 
         var result = service.evaluate(new EvaluateSubmissionCommand(
                 submission.id(), judge.value(), 8, "Good solution."));
 
-        assertEquals(8, result.score());
-        assertEquals(1, result.evaluatedSubmissionsCount());
+        assertEquals(8.0, result.score(), 0.001);
+        assertEquals(submission.id(), result.submissionId());
+        assertEquals(judge.value(), result.judgeId());
+        assertEquals("Good solution.", result.judgment());
+        assertEquals(1, evaluations.findAllBySubmissionIds(List.of(submission.id())).size());
     }
 
     @Test
@@ -58,6 +63,26 @@ public class EvaluateSubmissionServiceTest {
                 () -> service(hackathon, submissions, new InMemoryEvaluationRepository())
                         .evaluate(new EvaluateSubmissionCommand(
                                 submission.id(), TestDataFactory.userId().value(), 8, "Good solution.")));
+    }
+
+    @Test
+    public void rejectsEvaluationAfterHackathonEvaluationIsCompleted() {
+        var judge = TestDataFactory.userId();
+        var hackathon = TestDataFactory.hackathon(
+                3, HackathonState.UNDER_EVALUATION,
+                List.of(new StaffAssignment(judge, StaffRole.JUDGE)));
+        hackathon.completeEvaluation();
+        var team = TestDataFactory.team(TestDataFactory.userId());
+        var submission = Submission.create(
+                hackathon.id(), team.id(), "Title", "Description",
+                TestDataFactory.zipFile("submission.zip"), TestDataFactory.HACKATHON_START);
+        var submissions = new InMemorySubmissionRepository();
+        submissions.save(submission);
+
+        assertThrows(EvaluationAlreadyCompletedException.class,
+                () -> service(hackathon, submissions, new InMemoryEvaluationRepository())
+                        .evaluate(new EvaluateSubmissionCommand(
+                                submission.id(), judge.value(), 8, "Good solution.")));
     }
 
     @Test

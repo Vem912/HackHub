@@ -44,7 +44,7 @@ public class HackathonControllerTest {
         mockMvc.perform(post("/hackathons/{hackathonId}/teams", hackathonId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"userId":"%s","teamId":"%s","hackathonId":"%s"}
+                                {"userId":"%s","teamId":"%s"}
                                 """.formatted(userId, teamId, hackathonId)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.teamId").value(teamId.toString()))
@@ -58,7 +58,7 @@ public class HackathonControllerTest {
         mockMvc.perform(post("/hackathons/{hackathonId}/teams", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"userId":"","teamId":"","hackathonId":""}
+                                {"userId":"","teamId":""}
                                 """))
                 .andExpect(status().isBadRequest());
     }

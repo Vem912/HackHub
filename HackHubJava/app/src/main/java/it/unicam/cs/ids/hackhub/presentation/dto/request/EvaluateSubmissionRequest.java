@@ -6,8 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record EvaluateSubmissionRequest(
-        @NotBlank String submissionId,
-        @NotNull @Min(0) @Max(10) Integer score,
+        @NotNull @Min(0) @Max(10) Double score,
         @NotBlank String judgment,
         @NotBlank String judgeId
 ) {

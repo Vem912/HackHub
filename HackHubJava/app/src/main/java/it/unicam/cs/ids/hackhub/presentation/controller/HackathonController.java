@@ -10,12 +10,7 @@ import it.unicam.cs.ids.hackhub.presentation.dto.response.CreateHackathonRespons
 import it.unicam.cs.ids.hackhub.presentation.dto.response.RegisterTeamToHackathonResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -59,12 +54,13 @@ public class HackathonController {
     @PostMapping("/{hackathonId}/teams")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterTeamToHackathonResponse registerTeam(
+            @PathVariable String hackathonId,
             @Valid @RequestBody RegisterTeamToHackathonRequest request) {
         var result = registerTeamToHackathonUseCase.register(
                 new RegisterTeamToHackathonCommand(
                         UUID.fromString(request.userId()),
                         UUID.fromString(request.teamId()),
-                        UUID.fromString(request.hackathonId())));
+                        UUID.fromString(hackathonId)));
         return new RegisterTeamToHackathonResponse(result.teamId(), result.hackathonId());
     }
 }

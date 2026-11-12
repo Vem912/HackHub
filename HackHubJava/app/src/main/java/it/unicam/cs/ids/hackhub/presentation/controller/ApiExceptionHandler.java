@@ -1,12 +1,6 @@
 package it.unicam.cs.ids.hackhub.presentation.controller;
 
-import it.unicam.cs.ids.hackhub.application.exception.UserAlreadyInTeamException;
-import it.unicam.cs.ids.hackhub.application.exception.HackathonNotFoundException;
-import it.unicam.cs.ids.hackhub.application.exception.TeamNotFoundException;
-import it.unicam.cs.ids.hackhub.application.exception.TeamMemberNotAuthorizedException;
-import it.unicam.cs.ids.hackhub.application.exception.TeamRegistrationException;
-import it.unicam.cs.ids.hackhub.application.exception.SubmissionNotFoundException;
-import it.unicam.cs.ids.hackhub.application.exception.JudgeNotAuthorizedException;
+import it.unicam.cs.ids.hackhub.application.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,6 +32,24 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ProblemDetail handleUnauthorizedJudge(JudgeNotAuthorizedException exception) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
+    @ExceptionHandler(OrganizerNotAuthorizedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ProblemDetail handleUnauthorizedOrganizer(OrganizerNotAuthorizedException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
+    @ExceptionHandler(EvaluationsIncompleteException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleIncompleteEvaluations(EvaluationsIncompleteException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(EvaluationAlreadyCompletedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleEvaluationAlreadyCompleted(EvaluationAlreadyCompletedException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler({HackathonNotFoundException.class, TeamNotFoundException.class})

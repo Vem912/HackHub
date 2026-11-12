@@ -18,7 +18,7 @@ public class HackathonSubmissionController {
     }
 
     @GetMapping
-    public List<SubmissionResponse> list(@PathVariable String hackathonId) {
+    public List<SubmissionResponse> listSubmissions(@PathVariable String hackathonId) {
         return listUseCase.list(UUID.fromString(hackathonId)).stream()
                 .map(result -> new SubmissionResponse(
                         result.submissionId().toString(),

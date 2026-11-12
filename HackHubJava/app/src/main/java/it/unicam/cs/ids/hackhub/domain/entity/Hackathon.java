@@ -3,10 +3,14 @@ package it.unicam.cs.ids.hackhub.domain.entity;
 import it.unicam.cs.ids.hackhub.domain.enums.HackathonState;
 import it.unicam.cs.ids.hackhub.domain.valueobject.HackathonId;
 import it.unicam.cs.ids.hackhub.domain.valueobject.StaffStructure;
+import it.unicam.cs.ids.hackhub.domain.valueobject.TeamId;
 import it.unicam.cs.ids.hackhub.domain.valueobject.TimeConstraints;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Aggregate root for a hackathon, its staff, schedule, prize and lifecycle state.
@@ -21,6 +25,8 @@ public class Hackathon {
     private final String location;
     private final BigDecimal prize;
     private final int maxTeamMembers;
+    private TeamId winnerTeamId;
+    private boolean evaluationCompleted;
 
     private Hackathon(
             HackathonId id,
@@ -45,6 +51,8 @@ public class Hackathon {
         this.staffStructure = Objects.requireNonNull(staffStructure, "staffStructure cannot be null");
         this.timeConstraints = Objects.requireNonNull(timeConstraints, "timeConstraints cannot be null");
         this.state = HackathonState.REGISTRATION_OPEN;
+        winnerTeamId = null;
+        evaluationCompleted = false;
     }
 
     /**
@@ -111,6 +119,11 @@ public class Hackathon {
         return state;
     }
 
+    /** Returns the identifier of the winning team, if any. */
+    public Optional<TeamId> winnerTeamId() {
+        return Optional.ofNullable(winnerTeamId);
+    }
+
     /**
      * Changes the lifecycle state.
      *
@@ -118,5 +131,62 @@ public class Hackathon {
      */
     public void changeState(HackathonState state) {
         this.state = Objects.requireNonNull(state, "state cannot be null");
+    }
+
+    /**
+     * Concludes the hackathon with a winning team.
+     *
+     * @param winnerTeamId the identifier of the winning team; must not be null
+     * @throws IllegalStateException if the hackathon is already concluded or evaluation is not completed
+     */
+    public void concludeWithWinner(TeamId winnerTeamId) {
+        Objects.requireNonNull(winnerTeamId);
+        conclude(winnerTeamId);
+    }
+
+    /**
+     * Concludes the hackathon without a winning team.
+     *
+     * @throws IllegalStateException if the hackathon is already concluded or evaluation is not completed
+     */
+    public void concludeWithoutWinner() {
+        conclude(null);
+    }
+
+    /**
+     * Concludes the hackathon.
+     *
+     * @param winnerTeamId the identifier of the winning team, or null if no winner
+     * @throws IllegalStateException if the hackathon is already concluded or evaluation is not completed
+     */
+    private void conclude(TeamId winnerTeamId) {
+        if (state == HackathonState.CONCLUDED) {
+            throw new IllegalStateException("Hackathon is already concluded");
+        }
+        if (!evaluationCompleted) {
+            throw new IllegalStateException("Cannot conclude hackathon without completing evaluation");
+        }
+
+        this.winnerTeamId = winnerTeamId;
+        this.state = HackathonState.CONCLUDED;
+    }
+
+    /**
+     * Returns true if the evaluation phase is completed, false otherwise.
+     */
+    public boolean isEvaluationCompleted() {
+        return evaluationCompleted;
+    }
+
+    /**
+     * Completes the evaluation phase.
+     */
+    public void completeEvaluation() {
+        if (state != HackathonState.UNDER_EVALUATION) {
+            throw new IllegalStateException(
+                    "The hackathon is not under evaluation.");
+        }
+
+        evaluationCompleted = true;
     }
 }

@@ -55,8 +55,6 @@ public class SubmissionControllerTest {
         mockMvc.perform(multipart("/hackathons/{hackathonId}/teams/{teamId}/submission",
                                 hackathonId, teamId)
                         .file(file)
-                        .param("hackathonId", hackathonId.toString())
-                        .param("teamId", teamId.toString())
                         .param("userId", userId.toString())
                         .param("title", "Title")
                         .param("description", "Description")
@@ -76,8 +74,6 @@ public class SubmissionControllerTest {
         mockMvc.perform(multipart("/hackathons/{hackathonId}/teams/{teamId}/submission",
                                 UUID.randomUUID(), UUID.randomUUID())
                         .param("userId", UUID.randomUUID().toString())
-                        .param("hackathonId", UUID.randomUUID().toString())
-                        .param("teamId", UUID.randomUUID().toString())
                         .param("title", "Title")
                         .param("description", "Description")
                         .with(request -> {
