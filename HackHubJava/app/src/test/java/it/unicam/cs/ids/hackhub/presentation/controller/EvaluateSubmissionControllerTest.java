@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -36,7 +37,7 @@ public class EvaluateSubmissionControllerTest {
         var evaluationId = UUID.randomUUID();
         when(evaluateUseCase.evaluate(any()))
                 .thenReturn(new EvaluationResult(
-                        evaluationId, submissionId, judgeId, 8.5, "Good solution."));
+                        evaluationId, submissionId, judgeId, BigDecimal.valueOf(8.5), "Good solution."));
 
         mockMvc.perform(post("/submissions/{submissionId}/evaluation", submissionId)
                         .contentType(MediaType.APPLICATION_JSON)

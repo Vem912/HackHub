@@ -29,24 +29,24 @@ public class SubmissionController {
     @PutMapping(consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.OK)
     public SubmitTeamSubmissionResponse submit(
-            @PathVariable String hackathonId,
-            @PathVariable String teamId,
+            @PathVariable UUID hackathonId,
+            @PathVariable UUID teamId,
             @Valid @ModelAttribute SubmitTeamSubmissionRequest request
     ) {
         try {
             var result = submitUseCase.submit(new SubmitTeamSubmissionCommand(
-                    UUID.fromString(request.userId()),
-                    UUID.fromString(teamId),
-                    UUID.fromString(hackathonId),
+                    request.userId(),
+                    teamId,
+                    hackathonId,
                     request.title(),
                     request.description(),
                     new SubmissionFile(
                             request.file().getOriginalFilename(),
                             request.file().getBytes())));
             return new SubmitTeamSubmissionResponse(
-                    result.submissionId().toString(),
-                    result.teamId().toString(),
-                    result.hackathonId().toString(),
+                    result.submissionId(),
+                    result.teamId(),
+                    result.hackathonId(),
                     result.fileName(),
                     result.submittedAt(),
                     result.updated());

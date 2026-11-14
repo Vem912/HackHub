@@ -62,7 +62,7 @@ public class ListHackathonEvaluationsService implements ListHackathonEvaluations
                 .toList();
 
         return evaluationRepository.findAllBySubmissionIds(submissionIds).stream()
-                .sorted(Comparator.comparingDouble(Evaluation::score).reversed())
+                .sorted(Comparator.comparing(Evaluation::score).reversed())
                 .map(evaluation -> new EvaluationResult(
                         evaluation.id(),
                         evaluation.submissionId(),

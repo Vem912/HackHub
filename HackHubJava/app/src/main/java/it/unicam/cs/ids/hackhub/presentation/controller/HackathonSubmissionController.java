@@ -17,16 +17,15 @@ public class HackathonSubmissionController {
         this.listUseCase = Objects.requireNonNull(listUseCase);
     }
 
-    @GetMapping
-    public List<SubmissionResponse> listSubmissions(@PathVariable String hackathonId) {
-        return listUseCase.list(UUID.fromString(hackathonId)).stream()
+    @GetMapping("/listHackathonSubmissions")
+    public List<SubmissionResponse> listHackathonSubmissions(@PathVariable UUID hackathonId) {
+        return listUseCase.list(hackathonId).stream()
                 .map(result -> new SubmissionResponse(
-                        result.submissionId().toString(),
-                        result.teamId().toString(),
+                        result.submissionId(),
+                        result.teamId(),
                         result.title(),
                         result.description(),
                         result.fileName(),
-                        result.fileContent(),
                         result.submittedAt()))
                 .toList();
     }

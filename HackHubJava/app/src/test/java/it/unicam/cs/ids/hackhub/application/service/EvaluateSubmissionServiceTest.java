@@ -14,6 +14,7 @@ import it.unicam.cs.ids.hackhub.infrastructure.persistence.InMemorySubmissionRep
 import it.unicam.cs.ids.hackhub.support.TestDataFactory;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -37,9 +38,9 @@ public class EvaluateSubmissionServiceTest {
         var service = service(hackathon, submissions, evaluations);
 
         var result = service.evaluate(new EvaluateSubmissionCommand(
-                submission.id(), judge.value(), 8, "Good solution."));
+                submission.id(), judge.value(), BigDecimal.valueOf(8), "Good solution."));
 
-        assertEquals(8.0, result.score(), 0.001);
+        assertEquals(BigDecimal.valueOf(8), result.score());
         assertEquals(submission.id(), result.submissionId());
         assertEquals(judge.value(), result.judgeId());
         assertEquals("Good solution.", result.judgment());
@@ -62,7 +63,7 @@ public class EvaluateSubmissionServiceTest {
         assertThrows(JudgeNotAuthorizedException.class,
                 () -> service(hackathon, submissions, new InMemoryEvaluationRepository())
                         .evaluate(new EvaluateSubmissionCommand(
-                                submission.id(), TestDataFactory.userId().value(), 8, "Good solution.")));
+                                submission.id(), TestDataFactory.userId().value(), BigDecimal.valueOf(8), "Good solution.")));
     }
 
     @Test
@@ -82,7 +83,7 @@ public class EvaluateSubmissionServiceTest {
         assertThrows(EvaluationAlreadyCompletedException.class,
                 () -> service(hackathon, submissions, new InMemoryEvaluationRepository())
                         .evaluate(new EvaluateSubmissionCommand(
-                                submission.id(), judge.value(), 8, "Good solution.")));
+                                submission.id(), judge.value(), BigDecimal.valueOf(8), "Good solution.")));
     }
 
     @Test

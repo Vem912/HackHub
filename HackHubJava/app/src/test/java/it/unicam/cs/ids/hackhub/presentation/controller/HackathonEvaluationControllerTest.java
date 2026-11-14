@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,7 +46,7 @@ public class HackathonEvaluationControllerTest {
         var organizerId = UUID.randomUUID();
         when(listEvaluationsUseCase.list(any()))
                 .thenReturn(List.of(new EvaluationResult(
-                        evaluationId, submissionId, judgeId, 9.5, "Excellent.")));
+                        evaluationId, submissionId, judgeId, BigDecimal.valueOf(9.5), "Excellent.")));
 
         mockMvc.perform(get("/hackathons/{hackathonId}/evaluation", hackathonId)
                         .param("organizerId", organizerId.toString()))
@@ -76,7 +77,7 @@ public class HackathonEvaluationControllerTest {
                                 {"judgeId":"%s"}
                                 """.formatted(judgeId)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Evaluation phase completed successfully."));
+                .andExpect(content().string(""));
 
         verify(completeEvaluationUseCase).completeEvaluation(any());
     }

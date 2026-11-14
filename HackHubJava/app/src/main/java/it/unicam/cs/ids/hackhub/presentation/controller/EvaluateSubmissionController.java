@@ -23,17 +23,17 @@ public class EvaluateSubmissionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EvaluationResponse evaluate(
-            @PathVariable String submissionId,
+            @PathVariable UUID submissionId,
             @Valid @RequestBody EvaluateSubmissionRequest request) {
         var result = evaluateUseCase.evaluate(new EvaluateSubmissionCommand(
-                UUID.fromString(submissionId),
-                UUID.fromString(request.judgeId()),
+                submissionId,
+                request.judgeId(),
                 request.score(),
                 request.judgment()));
         return new EvaluationResponse(
-                result.evaluationId().toString(),
-                result.submissionId().toString(),
-                result.judgeId().toString(),
+                result.evaluationId(),
+                result.submissionId(),
+                result.judgeId(),
                 result.score(),
                 result.judgment());
     }

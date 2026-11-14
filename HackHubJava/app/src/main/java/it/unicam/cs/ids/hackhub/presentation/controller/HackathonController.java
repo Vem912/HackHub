@@ -31,7 +31,7 @@ public class HackathonController {
     }
 
     /** Creates a hackathon and returns its representation with HTTP 201. */
-    @PostMapping
+    @PostMapping("/createHackathon")
     @ResponseStatus(HttpStatus.CREATED)
     public CreateHackathonResponse createHackathon(@Valid @RequestBody CreateHackathonRequest request) {
         var command = new CreateHackathonCommand(
@@ -39,28 +39,26 @@ public class HackathonController {
                 request.location(),
                 request.prize(),
                 request.maxTeamMembers(),
-                UUID.fromString(request.organizerId()),
-                UUID.fromString(request.judgeId()),
-                request.mentorIds().stream().map(UUID::fromString).toList(),
+                request.organizerId(),
+                request.judgeId(),
+                request.mentorIds(),
                 request.teamRegistrationDeadline(),
                 request.hackathonStart(),
                 request.hackathonEnd());
         var result = createHackathonUseCase.create(command);
-        return new CreateHackathonResponse(
-                result.id().toString(),
-                result.name());
+        return new CreateHackathonResponse(result.id(), result.name());
     }
 
-    @PostMapping("/{hackathonId}/teams")
+    @PostMapping("/{hackathonId}/registerTeamToHackathon")
     @ResponseStatus(HttpStatus.CREATED)
-    public RegisterTeamToHackathonResponse registerTeam(
-            @PathVariable String hackathonId,
+    public RegisterTeamToHackathonResponse registerTeamToHackathon(
+            @PathVariable UUID hackathonId,
             @Valid @RequestBody RegisterTeamToHackathonRequest request) {
         var result = registerTeamToHackathonUseCase.register(
                 new RegisterTeamToHackathonCommand(
-                        UUID.fromString(request.userId()),
-                        UUID.fromString(request.teamId()),
-                        UUID.fromString(hackathonId)));
+                        request.userId(),
+                        request.teamId(),
+                        hackathonId));
         return new RegisterTeamToHackathonResponse(result.teamId(), result.hackathonId());
     }
 }

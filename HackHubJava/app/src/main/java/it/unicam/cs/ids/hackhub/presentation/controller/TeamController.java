@@ -26,14 +26,14 @@ public class TeamController {
     }
 
     /** Creates a team and returns its representation with HTTP 201. */
-    @PostMapping
+    @PostMapping("/createTeam")
     @ResponseStatus(HttpStatus.CREATED)
     public CreateTeamResponse createTeam(@Valid @RequestBody CreateTeamRequest request) {
         var command = new CreateTeamCommand(
                 request.name(),
-                UUID.fromString(request.creatorId()),
+                request.creatorId(),
                 request.paymentDetails());
         var result = createTeamUseCase.create(command);
-        return new CreateTeamResponse(result.id().toString(), result.name());
+        return new CreateTeamResponse(result.id(), result.name());
     }
 }

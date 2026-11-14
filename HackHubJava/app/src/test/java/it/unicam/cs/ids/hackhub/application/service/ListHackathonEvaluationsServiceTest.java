@@ -13,6 +13,7 @@ import it.unicam.cs.ids.hackhub.infrastructure.persistence.InMemorySubmissionRep
 import it.unicam.cs.ids.hackhub.support.TestDataFactory;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -33,8 +34,8 @@ public class ListHackathonEvaluationsServiceTest {
         submissions.save(first);
         submissions.save(second);
         var evaluations = new InMemoryEvaluationRepository();
-        evaluations.save(Evaluation.create(first.id(), judge, 4.5, "Okay."));
-        evaluations.save(Evaluation.create(second.id(), judge, 9.5, "Excellent."));
+        evaluations.save(Evaluation.create(first.id(), judge, BigDecimal.valueOf(4.5), "Okay."));
+        evaluations.save(Evaluation.create(second.id(), judge, BigDecimal.valueOf(9.5), "Excellent."));
 
         var result = service(hackathon, submissions, evaluations).list(
                 new ListHackathonEvaluationsCommand(
@@ -42,7 +43,7 @@ public class ListHackathonEvaluationsServiceTest {
 
         assertEquals(2, result.size());
         assertEquals(second.id(), result.get(0).submissionId());
-        assertEquals(9.5, result.get(0).score(), 0.001);
+        assertEquals(BigDecimal.valueOf(9.5), result.get(0).score());
         assertEquals(first.id(), result.get(1).submissionId());
     }
 

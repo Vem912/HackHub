@@ -35,31 +35,30 @@ public class HackathonEvaluationController {
         this.listEvaluationsUseCase = Objects.requireNonNull(listEvaluationsUseCase);
     }
 
-    @GetMapping
-    public List<EvaluationResponse> list(
+    @GetMapping("/listHackathonEvaluation")
+    public List<EvaluationResponse> listHackathonEvaluation(
             @PathVariable UUID hackathonId,
             @RequestParam UUID organizerId) {
         return listEvaluationsUseCase.list(new ListHackathonEvaluationsCommand(
                         hackathonId, organizerId))
                 .stream()
                 .map(result -> new EvaluationResponse(
-                        result.evaluationId().toString(),
-                        result.submissionId().toString(),
-                        result.judgeId().toString(),
+                        result.evaluationId(),
+                        result.submissionId(),
+                        result.judgeId(),
                         result.score(),
                         result.judgment()))
                 .toList();
     }
 
-    @PostMapping("/complete")
+    @PostMapping("/completeHackathonEvaluation")
     @ResponseStatus(HttpStatus.OK)
-    public String complete(
+    public void completeHackathonEvaluation(
             @PathVariable UUID hackathonId,
             @Valid @RequestBody CompleteHackathonEvaluationRequest request) {
         completeEvaluationUseCase.completeEvaluation(
                 new CompleteHackathonEvaluationCommand(
                         hackathonId,
-                        UUID.fromString(request.judgeId())));
-        return "Evaluation phase completed successfully.";
+                        request.judgeId()));
     }
 }

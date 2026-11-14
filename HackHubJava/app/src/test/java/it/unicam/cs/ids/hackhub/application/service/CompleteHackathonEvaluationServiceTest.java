@@ -15,6 +15,7 @@ import it.unicam.cs.ids.hackhub.infrastructure.persistence.InMemorySubmissionRep
 import it.unicam.cs.ids.hackhub.support.TestDataFactory;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
@@ -31,7 +32,7 @@ public class CompleteHackathonEvaluationServiceTest {
         var submissions = new InMemorySubmissionRepository();
         submissions.save(submission);
         var evaluations = new InMemoryEvaluationRepository();
-        evaluations.save(Evaluation.create(submission.id(), judge, 8, "Good solution."));
+        evaluations.save(Evaluation.create(submission.id(), judge, BigDecimal.valueOf(8), "Good solution."));
         var hackathons = repository(hackathon);
 
         service(hackathons, submissions, evaluations).completeEvaluation(
